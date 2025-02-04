@@ -1,4 +1,5 @@
 #!/bin/bash
+# WILL EVENTUALLY BE MERGED WITH "assemble.sh".
 # Uses nasm and ld to assemble and link an .asm files.
 # Assumes first argument is the name.
 # Assumes the first file name as the output name if no name is specified.
