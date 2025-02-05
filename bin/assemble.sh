@@ -18,15 +18,19 @@ show_help() {
 
             -l                  Automatically link all the object files,
                                 if no output name is provided through output
-                                flag (-o, --out), will use "a.out".
+                                flag (-o) will use "a.out".
 
             -o                  Set a custom name for the outputted executable
-                                only used if automatic linking flag is set
-                                (-l, --link).
+                                only used if automatic linking flag (-l)
+                                is set. 
 
-            -d                  Assmble and link with debugging symbols, passes
-                                [-g -F dwarf] flags to nasm
+            -d                  Assemble and link with debugging symbols, 
+                                passes [-g -F dwarf] flags to nasm
                                 and [-g] flag to ld.
+
+            -r                  Run the executable when assembling and linking
+                                is done. Does nothing if automatic linking flag
+                                is not set.
     "
     exit 0
 }
@@ -34,15 +38,17 @@ show_help() {
 # Initialise standard options
 link=false
 debug=false
+run=false
 output="a.out"
 
 # Process the options
-while getopts "o:ldh" opt; do
+while getopts "hlo:dr" opt; do
     case "$opt" in
         h) show_help ;;
         l) link=true ;;
         o) output=$OPTARG ;;
         d) debug=true ;;
+        r) run=true ;;
         ?) echo "Invalid option use -h for help" ;;
     esac
 done
@@ -97,8 +103,18 @@ done
 # Link the files
 if [ $link == true ]; then
     if [ $debug == true ]; then
-        ld -g ${obj_files[@]} -o "$output" || { echo "Linking failed, ld exit code $?"; exit 3; }
+        ld -g ${obj_files[@]} -o "./debug/$output" || { echo "Linking failed, ld exit code $?"; exit 3; }
     else
         ld ${obj_files[@]} -o "$output" || { echo "Linking failed, ld exit code $?"; exit 3; }
+    fi
+fi
+
+if [ $run == true ]; then
+    if [ $debug == true ]; then
+        ./debug/$output
+        echo "Exit code: $?"
+    else
+        ./$output
+        echo "Exit code: $?"
     fi
 fi
