@@ -87,15 +87,27 @@ if [ ${#asm_files[@]} -eq 0 ] && [ ${#obj_files[@]} -eq 0 ]; then
     exit 1
 fi
 
+
+# DEBUG
+#for file in ${asm_files[@]}; do
+#    base=$(basename $file)
+#    obj_name="${base%.asm}_debug.o"
+#    echo $obj_name
+#done
+#exit 0
+
+
 # Assemble the as files into obj files
 for file in ${asm_files[@]}; do
     if [ $debug == true ]; then
-        obj_name="${file%.asm}_debug.o"
-        nasm -f elf64 -g -F dwarf "$file" -o "./debug/obj/$obj_name" || { echo "Assembly failed for '$file', nasm exit code $?"; exit 2; }
+        base=$(basename $file)
+        obj_name="${base%.asm}_debug.o"
+        nasm -f elf64 -g -F dwarf "$file" -o "./debug/obj/$obj_name" || { exit 2; }
         obj_files+=("./debug/obj/$obj_name")
     else
-        obj_name="${file%.asm}.o"
-        nasm -f elf64 "$file" -o "./obj/$obj_name" || { echo "Assembly failed for '$file', nasm exit code $?"; exit 2; }
+        base=$(basename $file)
+        obj_name="${base%.asm}.o"
+        nasm -f elf64 "$file" -o "./obj/$obj_name" || { exit 2; }
         obj_files+=("./obj/$obj_name")
     fi
 done
